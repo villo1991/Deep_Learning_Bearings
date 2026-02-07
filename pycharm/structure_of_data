@@ -1,0 +1,103 @@
+Dataset raw:
+Link: https://doi.org/10.5281/zenodo.15845309
+Raw dataset has 2400 samples and each recorder has a duration of +-4s. Type of data register are:
+Recording frequency (64kHz)
+current_phase1 (64 khz)
+current_phase2 (64 khz)
+Radial force (4 khz)
+Load torque  (4 khz)
+Rotational speed (4 khz)
+Oil Temperature (1 khz)
+
+Configuration dataset raw for classification:
+Classes and distribution:
+class 0 = 0 no damage
+class 1 = 1 inner damage
+class 2 = 2 outer damage
+class 3 = 3 mix damage
+Train:
+2080 = [400 720 800 160] (position of the value declare the belong class)
+Test:
+240 = [ 80 80 80 80 ]
+
+Note:
+Record time isn't exactly 4s in 64 kHz, because the shorter recorder has 250604 values (3.92s) instead the
+higher has 291847 values (4.56s).
+
+I merged four folders into the Test Set, one for each type of damage. The Test Set contains a total of 240 tracks:
+80 tracks for each damage type, with 20 tracks for each experimental configuration.
+configuration of experiment.
+Conf 0 : 1500 rpm, load torque 0.7, radial force 1000 N
+Conf 1 : 900 rpm, load torque 0.7, radial force 1000 N
+Conf 2 : 1500 rpm, load torque 0.1, radial force 1000 N
+Conf 3 : 1500 rpm, load torque 0.7, radial force 400 N
+
+-------------------------------------------------------------------------------------------------------
+Data augmentation
+-------------------------------------------------------------------------------------------------------
+First, each track was split into 8 chunks of 31325 values. Then, in a separate step, data augmentation was applied
+to balance the dataset: Class 0 was increased from 3200 to 6400 samples, and Class 3 from 1280 to 3360 samples.
+
+Train augmented: [6400. 5760. 6400. 3360.]
+Train only split: [3200. 5760. 6400. 1280.]
+
+-------------------------------------------------------------------------------------------------------
+Data preprocess
+-------------------------------------------------------------------------------------------------------
+For the 1D model I preprocess input vector with first-order temporal derivative using central differences:
+→ x[n,k] l’elemento della matrice array_2D
+→ n: index sample (row)
+→ k: duration index (column)
+→ fs: Recording frequency
+→ Δt = 1 / fs
+                        ∂x[n,k]/∂t ≈ (x[n,k+1] − x[n,k−1]) / 2Δt
+
+-------------------------------------------------------------------------------------------------------
+Y dataset
+-------------------------------------------------------------------------------------------------------
+
+name: Y_test_raw_0.5.npy
+type = np.array(2560;1)
+abs_path= "..../Y_test_raw_0.5.npy"
+class and distribution: [640. 640. 640. 640.]
+
+name: Y_test_raw_0.5_ohe.npy
+type = np.array(2560;4), because contain one hot encoding for 4 classes
+abs_path= "....Y_test_raw_0.5_ohe.npy"
+class and distribution: [640. 640. 640. 640.]
+
+name: Y_train_raw_0.5.npy
+type = np.array(16640,1)
+abs_path= "...Y_train_raw_0.5.npy"
+class and distribution: [3200. 5760. 6400. 1280.]
+
+name: Y_train_raw_0.5_ohe.npy
+type = np.array(16640,4) because contain one hot encoding for 4 classes
+abs_path= "...Y_train_raw_0.5.npy"
+class and distribution: [3200. 5760. 6400. 1280.]
+
+name: Y_train_raw_aug_0.5.npy
+type = np.array(21920,1)
+abs_path= "...Y_train_raw_0.5.npy"
+class and distribution: [6400. 5760. 6400. 3360.]
+
+name: Y_train_raw_aug_0.5_ohe.npy
+type = np.array(21920,4) because contain one hot encoding for 4 classes
+abs_path= "...Y_train_raw_0.5.npy"
+class and distribution: [6400. 5760. 6400. 3360.]
+
+-------------------------------------------------------------------------------------------------------
+X dataset
+-------------------------------------------------------------------------------------------------------
+
+name: X_train_processed_aug.npy
+type: array(21920, 31325)
+abs_path: "..../X_train_processed_aug.npy"
+note: raw value are preprocess with first-order temporal derivative using central differences and the secondo step
+      standardization with Scaler fit on raw data
+
+name: X_train_processed.npy
+type: array(16640, 31325)
+abs_path: "..../X_train_processed.npy"
+note: raw value are preprocess with first-order temporal derivative using central differences and the secondo step
+      standardization with Scaler fit on raw data
