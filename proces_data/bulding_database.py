@@ -1,142 +1,172 @@
-import random
 import numpy as np
+import random
+from collections import Counter
 
+# ==========================================================
+# SET UP
+# ==========================================================
+fixed_signal_length = 250600
+slice_dimension = 5012
+augmentation_enabled = False
+p_distortion = 0.55
+
+target_distribution = {
+    0: 30000,
+    1: 30000,
+    2: 30000,
+    3: 30000,
+    4: 30000,
+    5: 30000,
+    6: 30000,
+    7: 30000,
+}
+
+np.random.seed(42)
+random.seed(42)
+
+# ==========================================================
+# AUGMENTATION
+# ==========================================================
 def distortion_raw_vibration(array: np.ndarray, p: float = 0.5):
     """
-    Generate the distorsion to augment the data
-    :param array: data to be distorted
-    :param p: probability of distortion
+    :param array: Array to distortion
+    :param p: probability distortion
+    :return: distorted version of the array
     """
-    d = array.astype(np.float32)
+    d = array.astype(np.float32).copy()
 
     if np.random.rand() < p:
         d = np.roll(d, np.random.randint(0, len(d)))
-    # gaussian noise
+
     if np.random.rand() < p:
         noise = np.random.normal(0.0, 0.01 * np.std(d), d.shape)
         d += noise
-    # amplitude scaling
+
     if np.random.rand() < p:
         d *= np.random.uniform(0.9, 1.1)
+
     return d
 
 
-np.random.seed(42)
-dataset = np.load("/...../paderborn_university/dataset/train_dataset_vibration.npz", allow_pickle=True)
+# ==========================================================
+# Loading
+# ==========================================================
+dataset = np.load(
+    "....../paderborn_university/dataset/test_dataset_vibration.npz",
+    allow_pickle=True
+)
 
 X_v_raw = dataset["X_raw"]
 Y_v_raw = dataset["y"]
 
-idx = 0
-slice_dimension = 31325
-number_sample = Y_v_raw.shape[0]
-new_X_dataset = np.zeros((number_sample*12,slice_dimension), dtype=np.float32)
-new_Y_dataset = np.zeros((number_sample*12,), dtype=np.uint8)
-
-for x,y in enumerate(X_v_raw):
-    label = Y_v_raw[x]
-    if label==1 or label==2 :
-        new_X_dataset[idx, :] = y[0:slice_dimension]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension:slice_dimension * 2]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 2:slice_dimension * 3]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 3:slice_dimension * 4]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 4:slice_dimension * 5]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 5:slice_dimension * 6]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 6:slice_dimension * 7]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 7:slice_dimension * 8]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-    elif label==0:
-        new_X_dataset[idx, :] = y[0:slice_dimension]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension:slice_dimension * 2]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 2:slice_dimension * 3]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 3:slice_dimension * 4]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 4:slice_dimension * 5]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 5:slice_dimension * 6]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 6:slice_dimension * 7]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 7:slice_dimension * 8]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        for _ in range(8):
-            n_rand = random.randint(0,215604)
-            chunk = y[n_rand:n_rand+slice_dimension]
-            dist_chunk = distortion_raw_vibration(chunk, p=0.55)
-            new_X_dataset[idx,:] = dist_chunk
-            new_Y_dataset[idx] = label
-            idx+=1
-    elif label==3:
-        new_X_dataset[idx, :] = y[0:slice_dimension]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension:slice_dimension * 2]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 2:slice_dimension * 3]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 3:slice_dimension * 4]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 4:slice_dimension * 5]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 5:slice_dimension * 6]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 6:slice_dimension * 7]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        new_X_dataset[idx, :] = y[slice_dimension * 7:slice_dimension * 8]
-        new_Y_dataset[idx] = Y_v_raw[x]
-        idx += 1
-        for _ in range(13):
-            n_rand = random.randint(0,215604)
-            chunk = y[n_rand:n_rand+slice_dimension]
-            dist_chunk = distortion_raw_vibration(chunk, p=0.5)
-            new_X_dataset[idx,:] = dist_chunk
-            new_Y_dataset[idx] = label
-            idx+=1
+print("Original distribution:", Counter(Y_v_raw))
 
 
+# ==========================================================
+# 1️⃣  TRONCAMENTO A LUNGHEZZA FISSA
+# ==========================================================
+X_fixed = []
+Y_fixed = []
 
-new_X_dataset = new_X_dataset[:idx]
-new_Y_dataset = new_Y_dataset[:idx]
+for signal, label in zip(X_v_raw, Y_v_raw):
 
-control_class= np.zeros(4, dtype=np.uint16)
-for x in new_Y_dataset:
-    control_class[x] += 1
+    if len(signal) >= fixed_signal_length:
+        truncated = signal[:fixed_signal_length]
+        X_fixed.append(truncated)
+        Y_fixed.append(label)
 
-print(control_class)
+# conversione array
+X_fixed = np.array(X_fixed, dtype=np.float32)
+Y_fixed = np.array(Y_fixed, dtype=np.uint8)
+
+print("Distribution after clipping:", Counter(Y_fixed))
+print(f"Length used: {fixed_signal_length}")
+
+# controllo divisibilità
+if fixed_signal_length % slice_dimension != 0:
+    raise ValueError(
+        "fixed_signal_length has to be a multiple of slice dimension"
+    )
+
+n_slices_per_signal = fixed_signal_length // slice_dimension
+print(f"Number of slice per signal: {n_slices_per_signal}")
 
 
-np.save("...../paderborn_university/dataset/X_train_dataset_vibration_raw_aug_0.5s.npy",new_X_dataset)
-np.save("...../paderborn_university/dataset/Y_train_raw_aug_0.5.npy",new_Y_dataset)
+# ==========================================================
+# 2️⃣  CREAZIONE CHUNK
+# ==========================================================
+chunks = []
+labels = []
 
+for signal, label in zip(X_fixed, Y_fixed):
+
+    for i in range(n_slices_per_signal):
+        start = i * slice_dimension
+        end = start + slice_dimension
+        chunks.append(signal[start:end])
+        labels.append(label)
+
+chunks = np.array(chunks, dtype=np.float32)
+labels = np.array(labels, dtype=np.uint8)
+
+print("Distribution after slicing:", Counter(labels))
+
+
+# ==========================================================
+# 3️⃣  AUGMENTATION (OPZIONALE)
+# ==========================================================
+if augmentation_enabled:
+
+    final_chunks = list(chunks)
+    final_labels = list(labels)
+
+    current_distribution = Counter(labels)
+
+    for class_id, target_count in target_distribution.items():
+
+        current_count = current_distribution[class_id]
+
+        if current_count >= target_count:
+            continue
+
+        print(f"Augment class {class_id}: {current_count} → {target_count}")
+
+        class_chunks = chunks[labels == class_id]
+
+        while current_count < target_count:
+            base_chunk = random.choice(class_chunks)
+            aug_chunk = distortion_raw_vibration(base_chunk, p=p_distortion)
+
+            final_chunks.append(aug_chunk)
+            final_labels.append(class_id)
+
+            current_count += 1
+
+    final_chunks = np.array(final_chunks, dtype=np.float32)
+    final_labels = np.array(final_labels, dtype=np.uint8)
+
+else:
+    print("Augmentation disable.")
+    final_chunks = chunks
+    final_labels = labels
+
+
+print("Distribution final:", Counter(final_labels))
+
+
+# ==========================================================
+# SALVE
+# ==========================================================
+suffix = "aug" if augmentation_enabled else "noaug"
+
+np.save(
+    f"......./paderborn_university/dataset/X_test_raw_{slice_dimension}_{suffix}.npy",
+    final_chunks
+)
+
+np.save(
+    f"......./paderborn_university/dataset/Y_test_raw_{slice_dimension}_{suffix}.npy",
+    final_labels
+)
+
+print("Dataset save correct.")
