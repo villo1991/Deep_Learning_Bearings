@@ -1,0 +1,11 @@
+Model             | Avg Acc    | Best Acc   | Best Loss    |         Best Run Folder
+-----------------------------------------------------------------------------------------
+Model 10024  1D   | 55.11%     | 68.51%     | 1.2257       |     wide_ResNet_10024_8class_2
+Model 5012   1D   | 63.95%     | 74.22%     | 1.3566       |     wide_ResNet_5012_8class_5
+
+
+Model Performance Summary
+| Model    | Avg Accuracy | **Best Accuracy** | Avg Loss | Best Loss |
+| :---:    |    :---:     |       :---:       |   :---:  |     
+| 10024 1D |    55.11%    |      **68.51%**   |  1.9360  |  1.2257   |
+| 5012  1D |    63.95%    |      **74.22%**   |  1.7284  |  1.3566   |
