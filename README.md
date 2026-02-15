@@ -14,8 +14,11 @@ Dataset Attribution & Copyright
 
 Source Information
   Provider: Paderborn University, LEA (Department of Power Electronics and Electrical Drives).
+  
   Reference: Christian Lessmeier, Peter Diedrich, Walter Sextro, 
   "Condition Monitoring of Bearing Damage in Electromechanical Drive Systems", Proceedings of the IEEE, 2016.
   Official Link: DOI: 10.5281/zenodo.15845309
-  License: This dataset is provided for research purposes. Any use of the data in this repository follows 
-  the principles of academic attribution and non-commercial personal research.
+  
+  License: This dataset is provided for research purposes. 
+  Any use of the data in this repository follows the principles of academic attribution and 
+  non-commercial personal research.
